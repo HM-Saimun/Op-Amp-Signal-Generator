@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Op-Amp Signal Studio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/">
+        <span class="brand-mark">∿</span>
+        <span><strong>Signal Studio</strong><small>OP-AMP LAB</small></span>
+      </a>
+      <p class="side-label">AMPLIFIER MODELS</p>
+      <nav id="amplifier-list" aria-label="Amplifier models">
+        <button class="amp-choice active" data-amplifier="inverting"><span class="nav-icon">−</span>Inverting</button>
+        <button class="amp-choice" data-amplifier="non_inverting"><span class="nav-icon">+</span>Non-inverting</button>
+        <button class="amp-choice" data-amplifier="integrator"><span class="nav-icon">∫</span>Integrator</button>
+        <button class="amp-choice" data-amplifier="differentiator"><span class="nav-icon">d</span>Differentiator</button>
+        <button class="amp-choice" data-amplifier="summing"><span class="nav-icon">Σ</span>Summing</button>
+      </nav>
+      <div class="sidebar-note">
+        <span class="status-dot"></span>
+        <div><strong>Simulation ready</strong><small>Results save automatically</small></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><span class="eyebrow">CIRCUIT WORKSPACE</span><h1 id="page-title">Inverting amplifier</h1></div>
+        <span class="save-badge">● &nbsp;Local history enabled</span>
+      </header>
+
+      <section class="workspace-grid">
+        <div class="left-column">
+          <section class="card schematic-card">
+            <div class="card-heading"><div><span class="eyebrow">CIRCUIT DIAGRAM</span><h2 id="diagram-title">Inverting amplifier</h2></div><span class="schematic-tag">SCHEMATIC</span></div>
+            <div class="diagram-wrap"><svg id="circuit-diagram" viewBox="0 0 760 300" role="img" aria-label="Selected amplifier circuit diagram"></svg></div>
+          </section>
+
+          <section class="card form-card">
+            <div class="card-heading"><div><span class="eyebrow">CONFIGURATION</span><h2>Simulation inputs</h2></div><span class="step-number">01</span></div>
+            <div id="signal-count-wrap" class="count-control" hidden>
+              <label for="signal-count">Number of input signals</label>
+              <input id="signal-count" type="number" min="1" max="8" value="2">
+            </div>
+            <form id="simulation-form">
+              <div id="input-fields" class="input-grid"></div>
+              <button class="run-button" type="submit"><span>Run simulation</span><span aria-hidden="true">→</span></button>
+              <p id="form-error" class="form-error" role="alert"></p>
+            </form>
+          </section>
+
+          <section id="result-card" class="card result-card" hidden>
+            <div class="card-heading"><div><span class="eyebrow">LATEST RUN</span><h2>Output signals</h2></div><span class="step-number">02</span></div>
+            <div id="result-summary" class="result-summary"></div>
+            <div id="result-images" class="result-images"></div>
+          </section>
+        </div>
+
+        <aside class="right-column">
+          <section class="card history-card">
+            <div class="card-heading"><div><span class="eyebrow">PERSISTENT RECORD</span><h2>Session history</h2></div><span id="history-count" class="history-count">0</span></div>
+            <p class="history-description">Every run stores its settings, computed waveform values, and saved plot links on this computer.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Session</th><th>Configuration &amp; results</th><th>Plots</th></tr></thead>
+                <tbody id="history-body"></tbody>
+              </table>
+              <p id="empty-history" class="empty-state">No simulations yet. Configure a circuit and run your first signal.</p>
+            </div>
+          </section>
+          <div class="storage-note"><span>↳</span><p>Plots are saved in <code>output_signals/</code> and the session log is stored in a local SQLite database.</p></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

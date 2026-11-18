@@ -1,0 +1,7 @@
+{
+  "name": "op-amp-signal-studio",
+  "private": true,
+  "scripts": {
+    "dev": ".venv\\Scripts\\python.exe web_app.py"
+  }
+}

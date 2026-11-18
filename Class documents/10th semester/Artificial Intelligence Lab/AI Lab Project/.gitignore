@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.py[cod]
+simulation_history.db
+output_signals/*
+!output_signals/.gitkeep

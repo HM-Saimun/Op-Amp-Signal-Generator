@@ -1,14 +1,22 @@
-def run():
+def run(inputs=None, output_prefix=None):
     import numpy as np
     import matplotlib.pyplot as plt
 
     # --- User Inputs ---
-    R1 = float(input("Enter the value of R1 (Ohm): "))
-    R2 = float(input("Enter the value of R2 (Ohm): "))
-    Vcc_pos = float(input("Enter the positive supply voltage (+Vcc in V): "))
-    Vcc_neg = float(input("Enter the negative supply voltage (-Vee in V): "))
-    Vi_amp = float(input("Enter the amplitude of input voltage Vi (V): "))
-    RL = float(input("Enter the load resistor value (Ohm): "))
+    if inputs is None:
+        R1 = float(input("Enter the value of R1 (Ohm): "))
+        R2 = float(input("Enter the value of R2 (Ohm): "))
+        Vcc_pos = float(input("Enter the positive supply voltage (+Vcc in V): "))
+        Vcc_neg = float(input("Enter the negative supply voltage (-Vee in V): "))
+        Vi_amp = float(input("Enter the amplitude of input voltage Vi (V): "))
+        RL = float(input("Enter the load resistor value (Ohm): "))
+    else:
+        R1 = inputs["R1"]
+        R2 = inputs["R2"]
+        Vcc_pos = inputs["Vcc_pos"]
+        Vcc_neg = inputs["Vcc_neg"]
+        Vi_amp = inputs["Vi_amp"]
+        RL = inputs["RL"]
 
     # --- Amplifier Gain (Non-Inverting Amplifier) ---
     Av = 1 + (R2 / R1)
@@ -38,7 +46,11 @@ def run():
     plt.ylabel('Voltage (V)')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    if output_prefix:
+        plt.savefig(f"{output_prefix}-voltage.png", dpi=150, bbox_inches="tight")
+        plt.close()
+    else:
+        plt.show()
 
     # --- Plot Load Current ---
     plt.figure(figsize=(10, 4))
@@ -49,17 +61,36 @@ def run():
     plt.ylabel('Current (A)')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    if output_prefix:
+        plt.savefig(f"{output_prefix}-current.png", dpi=150, bbox_inches="tight")
+        plt.close()
+    else:
+        plt.show()
 
     # --- Display Information ---
-    print(f"\nAmplifier Gain (Av) = {Av:.2f}")
-    print(f"Input Amplitude = {Vi_amp} V")
-    print(f"Ideal Output Peak = {abs(Av * Vi_amp):.2f} V")
-    print(f"Supply Rails: +{Vcc_pos} V / {Vcc_neg} V")
-    if np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg):
-        print("⚠️ Output is CLIPPED (Saturation occurred).")
-    else:
-        print("✅ Output is within saturation limits.")
+    if inputs is None:
+        print(f"\nAmplifier Gain (Av) = {Av:.2f}")
+        print(f"Input Amplitude = {Vi_amp} V")
+        print(f"Ideal Output Peak = {abs(Av * Vi_amp):.2f} V")
+        print(f"Supply Rails: +{Vcc_pos} V / {Vcc_neg} V")
+        if np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg):
+            print("⚠️ Output is CLIPPED (Saturation occurred).")
+        else:
+            print("✅ Output is within saturation limits.")
+    return {
+        "gain": float(Av),
+        "ideal_output_peak_v": float(np.max(np.abs(Vo_ideal))),
+        "output_peak_v": float(np.max(np.abs(Vo))),
+        "load_current_peak_a": float(np.max(np.abs(IL))),
+        "clipped": bool(
+            np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg)
+        ),
+        "time_rad": t.tolist(),
+        "input_voltage_v": Vi.tolist(),
+        "ideal_output_voltage_v": Vo_ideal.tolist(),
+        "output_voltage_v": Vo.tolist(),
+        "load_current_a": IL.tolist(),
+    }
 
 if __name__ == "__main__":
     run()

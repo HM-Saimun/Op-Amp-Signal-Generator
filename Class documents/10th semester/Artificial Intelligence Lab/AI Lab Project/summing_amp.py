@@ -1,24 +1,34 @@
-def run():
+def run(inputs=None, output_prefix=None):
     import numpy as np
     import matplotlib.pyplot as plt
 
     # ------------------- USER INPUT -------------------
-    n = int(input("Enter number of input signals: "))
+    if inputs is None:
+        n = int(input("Enter number of input signals: "))
 
-    Vi_amps = []
-    Ri = []
+        Vi_amps = []
+        Ri = []
 
-    for i in range(n):
-        amp = float(input(f"Enter amplitude of Vin{i+1} (V): "))
-        resistance = float(input(f"Enter resistor Ri{i+1} (Ohm): "))
-        Vi_amps.append(amp)
-        Ri.append(resistance)
+        for i in range(n):
+            amp = float(input(f"Enter amplitude of Vin{i+1} (V): "))
+            resistance = float(input(f"Enter resistor Ri{i+1} (Ohm): "))
+            Vi_amps.append(amp)
+            Ri.append(resistance)
 
-    Rf = float(input("Enter feedback resistor Rf (Ohm): "))
-    Vcc_pos = float(input("Enter +Vcc (V): "))
-    Vcc_neg = float(input("Enter -Vee (V): "))
-    f = float(input("Enter frequency of input signals (Hz): "))
-    RL = float(input("Enter load resistor RL (Ohm): "))
+        Rf = float(input("Enter feedback resistor Rf (Ohm): "))
+        Vcc_pos = float(input("Enter +Vcc (V): "))
+        Vcc_neg = float(input("Enter -Vee (V): "))
+        f = float(input("Enter frequency of input signals (Hz): "))
+        RL = float(input("Enter load resistor RL (Ohm): "))
+    else:
+        n = len(inputs["Vi_amps"])
+        Vi_amps = inputs["Vi_amps"]
+        Ri = inputs["Ri"]
+        Rf = inputs["Rf"]
+        Vcc_pos = inputs["Vcc_pos"]
+        Vcc_neg = inputs["Vcc_neg"]
+        f = inputs["f"]
+        RL = inputs["RL"]
 
     # ------------------- SIGNAL GENERATION -------------------
     t = np.linspace(0, 2 / f, 1000)
@@ -67,7 +77,11 @@ def run():
     plt.grid(True)
 
     plt.tight_layout()
-    plt.show()
+    if output_prefix:
+        plt.savefig(f"{output_prefix}-voltage.png", dpi=150, bbox_inches="tight")
+        plt.close()
+    else:
+        plt.show()
 
     # ------------------- Load Current Plot -------------------
     plt.figure(figsize=(10, 4))
@@ -78,15 +92,33 @@ def run():
     plt.ylabel("Current (A)")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    if output_prefix:
+        plt.savefig(f"{output_prefix}-current.png", dpi=150, bbox_inches="tight")
+        plt.close()
+    else:
+        plt.show()
 
     # ------------------- PRINT RESULTS -------------------
-    print("\n=== RESULTS ===")
-    print(f"Ideal Output Peak Voltage = {Vo_peak:.4f} V")
-    if np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg):
-        print("⚠️ Output SATURATED (Clipped)")
-    else:
-        print("✅ Output within limits")
+    if inputs is None:
+        print("\n=== RESULTS ===")
+        print(f"Ideal Output Peak Voltage = {Vo_peak:.4f} V")
+        if np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg):
+            print("⚠️ Output SATURATED (Clipped)")
+        else:
+            print("✅ Output within limits")
+    return {
+        "output_peak_voltage_v": float(Vo_peak),
+        "actual_output_peak_v": float(np.max(np.abs(Vo))),
+        "load_current_peak_a": float(np.max(np.abs(IL))),
+        "clipped": bool(
+            np.any(Vo_ideal > Vcc_pos) or np.any(Vo_ideal < Vcc_neg)
+        ),
+        "time_s": t.tolist(),
+        "input_voltage_v": [signal.tolist() for signal in Vin],
+        "ideal_output_voltage_v": Vo_ideal.tolist(),
+        "output_voltage_v": Vo.tolist(),
+        "load_current_a": IL.tolist(),
+    }
 
 if __name__ == "__main__":
     run()
